@@ -2,6 +2,7 @@ from contextlib import contextmanager
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.exc import SQLAlchemyError
 
 # Create PostgreSQL database engine
 SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@localhost:5433/mydb"
@@ -44,75 +45,110 @@ def get_db():
     finally:
         db.close()
 
+class DatabaseError:
+    def __init__(self, message: str):
+        self.message = message
+
 def create_book(title: str, author: str):
-    with get_db() as db:
-        new_book = BookModel(title=title, author=author)
-        db.add(new_book)
-        db.commit()
-        db.refresh(new_book)
-    return new_book
+    try:
+        with get_db() as db:
+            new_book = BookModel(title=title, author=author)
+            db.add(new_book)
+            db.commit()
+            db.refresh(new_book)
+            return new_book
+    except SQLAlchemyError as e:
+        return DatabaseError(f"Failed to create book: {str(e)}")
 
 def update_book(book_id: int, title: str, author: str):
-    with get_db() as db:
-        book = db.query(BookModel).filter(BookModel.id == book_id).first()
-        if book:
+    try:
+        with get_db() as db:
+            book = db.query(BookModel).filter(BookModel.id == book_id).first()
+            if not book:
+                return DatabaseError("Book not found")
             book.title = title
             book.author = author
             db.commit()
             db.refresh(book)
-    return book
+            return book
+    except SQLAlchemyError as e:
+        return DatabaseError(f"Failed to update book: {str(e)}")
 
 def delete_book(book_id: int):
-    with get_db() as db:
-        book = db.query(BookModel).filter(BookModel.id == book_id).first()
-        if book:
+    try:
+        with get_db() as db:
+            book = db.query(BookModel).filter(BookModel.id == book_id).first()
+            if not book:
+                return DatabaseError("Book not found")
             db.delete(book)
             db.commit()
             return True
-        return False
-
+    except SQLAlchemyError as e:
+        return DatabaseError(f"Failed to delete book: {str(e)}")
 def get_book(book_id: int):
-    with get_db() as db:
-        return db.query(BookModel).filter(BookModel.id == book_id).first()
+    try:
+        with get_db() as db:
+            return db.query(BookModel).filter(BookModel.id == book_id).first()
+    except SQLAlchemyError as e:
+        return DatabaseError(f"Failed to get book: {str(e)}")
 
 def get_books(skip: int = 0, limit: int = 100):
-    with get_db() as db:
-        return db.query(BookModel).offset(skip).limit(limit).all()
+    try:
+        with get_db() as db:
+            return db.query(BookModel).offset(skip).limit(limit).all()
+    except SQLAlchemyError as e:
+        return DatabaseError(f"Failed to get books: {str(e)}")
 
 def create_review(rating: int, title: str, book_id: int):
-    with get_db() as db:
-        new_review = ReviewModel(rating=rating, title=title, book_id=book_id)
-        db.add(new_review)
-        db.commit()
-        db.refresh(new_review)
-        return new_review
+    try:
+        with get_db() as db:
+            new_review = ReviewModel(rating=rating, title=title, book_id=book_id)
+            db.add(new_review)
+            db.commit()
+            db.refresh(new_review)
+            return new_review
+    except SQLAlchemyError as e:
+        return DatabaseError(f"Failed to create review: {str(e)}")
 
 def get_reviews(book_id: int):
-    with get_db() as db:
-        return db.query(ReviewModel).filter(ReviewModel.book_id == book_id).all()
+    try:
+        with get_db() as db:
+            return db.query(ReviewModel).filter(ReviewModel.book_id == book_id).all()
+    except SQLAlchemyError as e:
+        return DatabaseError(f"Failed to get reviews: {str(e)}")
 
 def get_review(review_id: int):
-    with get_db() as db:
-        return db.query(ReviewModel).filter(ReviewModel.id == review_id).first()    
+    try:
+        with get_db() as db:
+            return db.query(ReviewModel).filter(ReviewModel.id == review_id).first()
+    except SQLAlchemyError as e:
+        return DatabaseError(f"Failed to get review: {str(e)}")
 
 def update_review(review_id: int, rating: int, title: str):
-    with get_db() as db:
-        review = db.query(ReviewModel).filter(ReviewModel.id == review_id).first()
-        if review:
+    try:
+        with get_db() as db:
+            review = db.query(ReviewModel).filter(ReviewModel.id == review_id).first()
+            if not review:
+                return DatabaseError("Review not found")
             review.rating = rating
             review.title = title
             db.commit()
             db.refresh(review)
-        return review
+            return review
+    except SQLAlchemyError as e:
+        return DatabaseError(f"Failed to update review: {str(e)}")
 
 def delete_review(review_id: int):
-    with get_db() as db:
-        review = db.query(ReviewModel).filter(ReviewModel.id == review_id).first()
-        if review:
+    try:
+        with get_db() as db:
+            review = db.query(ReviewModel).filter(ReviewModel.id == review_id).first()
+            if not review:
+                return DatabaseError("Review not found")
             db.delete(review)
             db.commit()
             return True
-        return False
+    except SQLAlchemyError as e:
+        return DatabaseError(f"Failed to delete review: {str(e)}")
 
 
 
