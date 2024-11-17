@@ -31,9 +31,6 @@ books = [
 ]
 
 
-
-
-
 def get_books():
     return books
 
