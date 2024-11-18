@@ -1,12 +1,14 @@
 # Data loader implementation with Fast API and Strawberry.
 
-## 1. Local setup
+## Local setup
 
 ### Tools
 
 - Docker
 - GNU make
 - Poetry
+
+### Commands
 
 ```sh
 # Install dependencies and create a virtual environment
@@ -21,9 +23,29 @@ make db-up
 # Run database migrations
 make db-migrate
 
-# Seed the database with initial data
+# Seed the database
 make db-seed
 
-# Start the development server with hot reload
+# Start the development server
 make dev
 ```
+
+## Batching
+
+**Fetch the books**
+
+```gql
+query {
+  books {
+    title
+    id
+    reviews {
+      comment
+    }
+  }
+}
+```
+
+I Naive application make 5 roundtrips to the db for the review table. With the data loader artifact we make one.
+
+See the logs.
