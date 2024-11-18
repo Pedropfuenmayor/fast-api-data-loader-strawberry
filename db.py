@@ -4,14 +4,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
 
-# Create PostgreSQL database engine
 SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@localhost:5433/mydb"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
 
-# Create declarative base class
 Base = declarative_base()
-
-# Define Book model
 class BookModel(Base):
     __tablename__ = "books"
 
@@ -20,7 +16,6 @@ class BookModel(Base):
     author = Column(String, index=True)
     reviews = relationship("ReviewModel", back_populates="book")
 
-# Define Review model
 class ReviewModel(Base):
     __tablename__ = "reviews"
 
@@ -30,13 +25,10 @@ class ReviewModel(Base):
     book_id = Column(Integer, ForeignKey("books.id"))
     book = relationship("BookModel", back_populates="reviews")
 
-# Create all tables
 Base.metadata.create_all(bind=engine)
 
-# Create SessionLocal class
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Dependency to get DB 
 @contextmanager
 def get_db():
     db = SessionLocal()

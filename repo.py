@@ -69,26 +69,27 @@ def create_review(rating: int, comment: str, book_id: int):
             return new_review
     except SQLAlchemyError as e:
         return DatabaseError(f"Failed to create review: {str(e)}")
-# naively get all reviews for a book
+# Naively get_reviews for a book
 # def get_reviews(book_id: int):
 #     try:
 #         with get_db() as db:
 #             return db.query(ReviewModel).filter(ReviewModel.book_id == book_id).all()
 #     except SQLAlchemyError as e:
 #         return DatabaseError(f"Failed to get reviews: {str(e)}")
-# optimized get all reviews for a book
+# Optimized get_reviews for a book
 async def get_reviews(book_ids: list[int]):
+    """
+    Batch function implementation following DataLoader pattern:
+    https://github.com/graphql/dataloader?tab=readme-ov-file#batch-function
+    """
     try:
         with get_db() as db:
             reviews = db.query(ReviewModel).filter(ReviewModel.book_id.in_(book_ids)).all()
-            # Create a dictionary mapping book_ids to their reviews
             review_map = {}
             for review in reviews:
                 if review.book_id not in review_map:
                     review_map[review.book_id] = []
                 review_map[review.book_id].append(review)
-            
-            # Return reviews for each requested book_id in order, with error if not found
             return [
                 review_map.get(book_id, [DatabaseError(f"No reviews found for book {book_id}")])
                 for book_id in book_ids
