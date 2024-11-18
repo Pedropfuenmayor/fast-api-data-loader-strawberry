@@ -49,3 +49,8 @@ query {
 I Naive application make 5 roundtrips to the db for the review table. With the data loader artifact we make one.
 
 See the logs.
+
+## Docs reference
+
+- [Data loader](https://github.com/graphql/dataloader)
+- [Strawberry Data Loader](https://strawberry.rocks/docs/guides/dataloaders#dataloaders)
