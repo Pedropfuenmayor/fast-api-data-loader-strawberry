@@ -1,0 +1,29 @@
+# Data loader implementation with Fast API and Strawberry.
+
+## 1. Local setup
+
+### Tools
+
+- Docker
+- GNU make
+- Poetry
+
+```sh
+# Install dependencies and create a virtual environment
+poetry install
+
+# Activate the virtual environment. We never use globally installed Python
+poetry shell
+
+# Start the database container
+make db-up
+
+# Run database migrations
+make db-migrate
+
+# Seed the database with initial data
+make db-seed
+
+# Start the development server with hot reload
+make dev
+```

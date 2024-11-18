@@ -2,10 +2,10 @@ from db import BookModel, DatabaseError, ReviewModel, get_db
 from sqlalchemy.exc import SQLAlchemyError
 
 
-def create_book(title: str, author: str, related_book_ids: list[int] = None):
+def create_book(title: str, author: str):
     try:
         with get_db() as db:
-            new_book = BookModel(title=title, author=author, related_book_ids=related_book_ids)
+            new_book = BookModel(title=title, author=author)
             db.add(new_book)
             db.commit()
             db.refresh(new_book)
