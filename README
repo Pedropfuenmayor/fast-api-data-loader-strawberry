@@ -46,7 +46,7 @@ query {
 }
 ```
 
-I Naive application make 5 roundtrips to the db for the review table. With the data loader artifact we make one.
+I naive application make 5 roundtrips to the db for the review table. With the data loader artifact we make one.
 
 See the logs.
 
