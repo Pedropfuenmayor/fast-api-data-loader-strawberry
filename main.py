@@ -48,9 +48,6 @@ class Book:
 
     @strawberry.field
     def reviews(self, info: strawberry.Info[CustomContext]) -> list[Review]:
-        # Naively load reviews
-        # return get_reviews(self.id)
-        # optimized load reviews
         return info.context.reviews_loader.load(self.id)
 
     id: int

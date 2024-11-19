@@ -69,14 +69,14 @@ def create_review(rating: int, comment: str, book_id: int):
             return new_review
     except SQLAlchemyError as e:
         return DatabaseError(f"Failed to create review: {str(e)}")
-# Naively get_reviews for a book
+
 def get_reviews(book_id: int):
     try:
         with get_db() as db:
             return db.query(ReviewModel).filter(ReviewModel.book_id == book_id).all()
     except SQLAlchemyError as e:
         return DatabaseError(f"Failed to get reviews: {str(e)}")
-# Optimized get_reviews for a book
+
 async def get_reviews_batched(book_ids: list[int]):
     """
     Batch function implementation following DataLoader pattern:
