@@ -6,6 +6,10 @@ db-migrate:
 
 db-seed:
 	poetry run python seed.py
+	
+
+dev-naive:
+	uvicorn app:app --reload
 
 dev:
 	uvicorn main:app --reload

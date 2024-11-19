@@ -1,8 +1,7 @@
 import strawberry
 
-from fastapi import FastAPI, Depends
-from strawberry.fastapi import GraphQLRouter, BaseContext
-from strawberry.dataloader import DataLoader
+from fastapi import FastAPI
+from strawberry.fastapi import GraphQLRouter
 
 from repo import (
     create_book,
@@ -11,27 +10,10 @@ from repo import (
     delete_review,
     get_book,
     get_books,
-    get_reviews_batched,
+    get_reviews,
     update_book,
     update_review,
 )
-
-# The usage of a custom context guarantees that the DataLoader is created once per request, providing request-scoped caching. 
-# After the request is processed, the context is destroyed and the loader is garbage collected, ensuring proper cleanup of cached data.
-class CustomContext(BaseContext):
-    def __init__(self, reviews_loader: DataLoader):
-        self.reviews_loader = reviews_loader
-
-
-def custom_context_loader() -> CustomContext:
-    reviews_loader = DataLoader(load_fn=get_reviews_batched)
-    return CustomContext(reviews_loader=reviews_loader)
-
-
-async def get_context(
-    custom_context=Depends(custom_context_loader),
-) -> CustomContext:
-    return custom_context
 
 
 @strawberry.type
@@ -47,11 +29,9 @@ class Book:
     author: str
 
     @strawberry.field
-    def reviews(self, info: strawberry.Info[CustomContext]) -> list[Review]:
+    def reviews(self) -> list[Review]:
         # Naively load reviews
-        # return get_reviews(self.id)
-        # optimized load reviews
-        return info.context.reviews_loader.load(self.id)
+        return get_reviews(self.id)
 
     id: int
 
@@ -93,7 +73,6 @@ schema: strawberry.Schema = strawberry.Schema(query=Query, mutation=Mutation)
 
 graphql_app: GraphQLRouter = GraphQLRouter(
     schema=schema,
-    context_getter=get_context,
 )
 
 app = FastAPI()
