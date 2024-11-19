@@ -28,6 +28,12 @@ The n+1 occurs when we make an initial request, fallowed by some unknown number 
 ### Commands
 
 ```sh
+
+#Clone the repo
+mkdir data-loader && cd data-loader
+
+git clone https://github.com/Pedropfuenmayor/fast-api-data-loader-strawberry.git .
+
 # Install dependencies and create a virtual environment
 poetry install
 
